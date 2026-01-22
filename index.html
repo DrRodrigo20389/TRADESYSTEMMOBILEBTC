@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TERMINAL MASTER [V31 FINAL]</title>
+<title>TERMINAL MASTER [V32 FINAL]</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0"></script>
@@ -149,7 +149,7 @@
 
 <div class="cockpit">
   <header>
-    <div class="logo">TERMINAL [V31 FINAL]</div>
+    <div class="logo">TERMINAL [V32 FINAL]</div>
     <div class="live-dot"></div>
     <div class="ctrl">
       <label>TF</label>
@@ -163,6 +163,8 @@
       <select id="limit" onchange="startEngine()">
         <option value="1000" selected>1k</option>
         <option value="5000">5k</option>
+        <option value="10000">10k</option>
+        <option value="20000">20k</option>
       </select>
     </div>
     <div id="price-box" style="margin-left:auto; font-family:var(--mono); font-weight:bold; color:#fff; font-size:16px;">--</div>
@@ -298,7 +300,7 @@
 // JS CORE (BLINDAGEM ORIGINAL + TRADING INDICATORS)
 // ============================================================
 const FERIADOS_STOP = ["2026-01-01", "2026-02-16", "2026-02-17", "2026-04-03", "2026-04-21", "2026-05-01", "2026-06-24", "2026-07-02", "2026-09-07", "2026-10-12", "2026-11-02", "2026-11-15", "2026-12-25"];
-let db = JSON.parse(localStorage.getItem('blindagem_quantum_final_v31')) || { tesouroTotal: 0, logsMes: [], historicoLogs: [] };
+let db = JSON.parse(localStorage.getItem('blindagem_quantum_final_v32')) || { tesouroTotal: 0, logsMes: [], historicoLogs: [] };
 let finChart;
 let globalCaixaReais = 0; 
 let globalSatsTotal = 0; 
@@ -308,7 +310,7 @@ let lastKnownPrice = parseFloat(localStorage.getItem('btc_last_price')) || 60000
 let livePrice = lastKnownPrice;
 
 function saveFin() { 
-    localStorage.setItem('blindagem_quantum_final_v31', JSON.stringify(db)); 
+    localStorage.setItem('blindagem_quantum_final_v32', JSON.stringify(db)); 
     renderFinFull(); 
     updateLiveCalculations(); 
 }
@@ -395,7 +397,7 @@ function apagarItem(id) {
 
 function exportarJSON() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
-    const a = document.createElement('a'); a.href = dataStr; a.download = "backup_terminal_v31.json"; a.click();
+    const a = document.createElement('a'); a.href = dataStr; a.download = "backup_terminal_v32.json"; a.click();
 }
 
 function importarJSON(e) {
@@ -591,7 +593,7 @@ const customPlugin = {
 
 async function startEngine() {
   const tf = document.getElementById('tf').value;
-  // Agora pega o valor do select de candles!
+  // AGORA LÊ O VALOR DO SELECT DE CANDLES (1000, 5000, 10000, 20000)
   const limit = parseInt(document.getElementById('limit').value);
   
   let all = []; let endTime = null;
@@ -728,7 +730,6 @@ function updateLiveCalculations() {
    drawGauge('gAcc', Math.max(0, Math.min(100, accGauge)), '#f7931a');
    document.getElementById('tAcc').innerText = mom.toFixed(2);
    
-   // LISTA ALERTAS
    const l = document.getElementById('sigList'); l.innerHTML = '';
    [...signals].reverse().slice(0,100).forEach(s => {
        const style = LEVELS[s.t];
