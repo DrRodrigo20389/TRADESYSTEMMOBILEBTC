@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TERMINAL MASTER [V30 FINAL]</title>
+<title>TERMINAL MASTER [V31 FINAL]</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0"></script>
@@ -149,13 +149,20 @@
 
 <div class="cockpit">
   <header>
-    <div class="logo">TERMINAL MASTER [V30 FINAL]</div>
+    <div class="logo">TERMINAL [V31 FINAL]</div>
     <div class="live-dot"></div>
     <div class="ctrl">
       <label>TF</label>
       <select id="tf" onchange="startEngine()">
         <option value="4h" selected>4H</option>
         <option value="1d">1D</option>
+      </select>
+    </div>
+    <div class="ctrl">
+      <label>CANDLES</label>
+      <select id="limit" onchange="startEngine()">
+        <option value="1000" selected>1k</option>
+        <option value="5000">5k</option>
       </select>
     </div>
     <div id="price-box" style="margin-left:auto; font-family:var(--mono); font-weight:bold; color:#fff; font-size:16px;">--</div>
@@ -288,10 +295,10 @@
 
 <script>
 // ============================================================
-// JS CORE (BLINDAGEM ORIGINAL)
+// JS CORE (BLINDAGEM ORIGINAL + TRADING INDICATORS)
 // ============================================================
 const FERIADOS_STOP = ["2026-01-01", "2026-02-16", "2026-02-17", "2026-04-03", "2026-04-21", "2026-05-01", "2026-06-24", "2026-07-02", "2026-09-07", "2026-10-12", "2026-11-02", "2026-11-15", "2026-12-25"];
-let db = JSON.parse(localStorage.getItem('blindagem_quantum_final_v30')) || { tesouroTotal: 0, logsMes: [], historicoLogs: [] };
+let db = JSON.parse(localStorage.getItem('blindagem_quantum_final_v31')) || { tesouroTotal: 0, logsMes: [], historicoLogs: [] };
 let finChart;
 let globalCaixaReais = 0; 
 let globalSatsTotal = 0; 
@@ -301,7 +308,7 @@ let lastKnownPrice = parseFloat(localStorage.getItem('btc_last_price')) || 60000
 let livePrice = lastKnownPrice;
 
 function saveFin() { 
-    localStorage.setItem('blindagem_quantum_final_v30', JSON.stringify(db)); 
+    localStorage.setItem('blindagem_quantum_final_v31', JSON.stringify(db)); 
     renderFinFull(); 
     updateLiveCalculations(); 
 }
@@ -317,7 +324,7 @@ function lancar() {
     const b = parseFloat(document.getElementById('valorBruto').value);
     if (!b) return;
 
-    // REGRA DE DESCONTO ORIGINAL (INDEX.HTML):
+    // REGRA DE DESCONTO ORIGINAL:
     let taxa = 0.06;
     if (b > 3000) taxa = 0.20;
     else if (b > 1000) taxa = 0.13;
@@ -388,7 +395,7 @@ function apagarItem(id) {
 
 function exportarJSON() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
-    const a = document.createElement('a'); a.href = dataStr; a.download = "backup_terminal_v30.json"; a.click();
+    const a = document.createElement('a'); a.href = dataStr; a.download = "backup_terminal_v31.json"; a.click();
 }
 
 function importarJSON(e) {
@@ -584,7 +591,8 @@ const customPlugin = {
 
 async function startEngine() {
   const tf = document.getElementById('tf').value;
-  const limit = 1000; 
+  // Agora pega o valor do select de candles!
+  const limit = parseInt(document.getElementById('limit').value);
   
   let all = []; let endTime = null;
   try {
@@ -671,6 +679,7 @@ function updateLiveCalculations() {
    document.getElementById('sigmaVal').innerText = (z>0?"+":"")+z.toFixed(2)+"σ";
    document.getElementById('heatPtr').style.left = `${Math.max(0, Math.min(100, ((z+3.5)/7)*100))}%`;
    
+   // ATUALIZAR RECBOX
    const box = document.getElementById('recBox'); 
    const act = document.getElementById('recAct'); 
    const det = document.getElementById('recDet');
@@ -692,6 +701,7 @@ function updateLiveCalculations() {
        det.innerText = "Carregando...";
    }
 
+   // ATUALIZAR ZONA PROB
    let lvl = null;
    const keys = Object.keys(LEVELS).sort((a,b)=>Math.abs(LEVELS[b].s)-Math.abs(LEVELS[a].s));
    for(let k of keys) { if(Math.abs(z - LEVELS[k].s) < 0.25) { lvl = LEVELS[k]; lvl.code = k; break; } }
@@ -704,6 +714,7 @@ function updateLiveCalculations() {
        zoneSpan.style.color = "#999";
    }
 
+   // ATUALIZAR GAUGES
    const volPct = (lastATR / livePrice) * 1000;
    drawGauge('gVol', Math.min(100, volPct*2), '#00ff9d');
    document.getElementById('tVol').innerText = volPct.toFixed(1);
@@ -717,6 +728,7 @@ function updateLiveCalculations() {
    drawGauge('gAcc', Math.max(0, Math.min(100, accGauge)), '#f7931a');
    document.getElementById('tAcc').innerText = mom.toFixed(2);
    
+   // LISTA ALERTAS
    const l = document.getElementById('sigList'); l.innerHTML = '';
    [...signals].reverse().slice(0,100).forEach(s => {
        const style = LEVELS[s.t];
