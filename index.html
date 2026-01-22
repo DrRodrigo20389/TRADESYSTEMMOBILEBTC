@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TERMINAL MASTER [V29 COMPLETA]</title>
+<title>TERMINAL MASTER [V30 FINAL]</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0"></script>
@@ -97,22 +97,6 @@
   .proj-val { font-size: 16px; font-weight: bold; color: var(--quantum); text-align: right; }
   .proj-sub { font-size: 9px; color: #888; text-align: right; margin-top: 2px; }
 
-  /* === REGRA 1/3 (VISUAL) === */
-  .rule-box {
-      border: 1px dashed #666;
-      background: rgba(255, 255, 255, 0.03);
-      padding: 8px;
-      border-radius: 4px;
-      margin-top: 10px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      font-size: 10px;
-  }
-  .rule-item { text-align: center; }
-  .rule-val { font-size: 13px; font-weight: bold; font-family: var(--mono); margin-top: 2px; }
-  .rule-label { color: #888; font-size: 9px; text-transform: uppercase; }
-
   /* === ESTILO DESTAQUE TURNO === */
   .turno-highlight { border: 2px solid var(--buy); background: rgba(0, 255, 157, 0.08); padding: 12px; }
   .turno-highlight .input-group { display: grid; grid-template-columns: 1fr 90px 45px; gap: 6px; }
@@ -137,9 +121,8 @@
       
       .chart-area { height: 380px; flex-shrink: 0; border-bottom: 1px solid var(--border); }
       
-      /* REATIVANDO INDICADORES NO MOBILE */
       .indicators-area { 
-          display: flex; /* Agora visível! */
+          display: flex; 
           height: auto;
           overflow: visible;
           border-bottom: 1px solid var(--border);
@@ -148,7 +131,6 @@
       
       .finance-area { height: auto; overflow: visible; padding-bottom: 60px; }
 
-      /* Ajuste dos inputs para mobile */
       .turno-highlight .input-group {
           grid-template-columns: 1fr 1fr; 
           grid-template-areas: "valor valor" "data botao";
@@ -167,7 +149,7 @@
 
 <div class="cockpit">
   <header>
-    <div class="logo">TERMINAL [V29 COMPLETA]</div>
+    <div class="logo">TERMINAL MASTER [V30 FINAL]</div>
     <div class="live-dot"></div>
     <div class="ctrl">
       <label>TF</label>
@@ -240,17 +222,6 @@
           <span class="val-btc" id="saldoSatsDisplay">0 sats</span>
         </div>
       </div>
-
-      <div class="rule-box">
-          <div class="rule-item" style="border-right:1px solid #444">
-              <span class="rule-label">META BTC (1/3)</span>
-              <div class="rule-val" id="metaBtc" style="color:var(--accumulate)">R$ 0,00</div>
-          </div>
-          <div class="rule-item">
-              <span class="rule-label">GIRO (2/3)</span>
-              <div class="rule-val" id="giroLivre" style="color:var(--buy)">R$ 0,00</div>
-          </div>
-      </div>
       
       <div style="height:80px; margin-top:10px;">
         <canvas id="finChart"></canvas>
@@ -317,10 +288,10 @@
 
 <script>
 // ============================================================
-// JS CORE (BLINDAGEM ORIGINAL + TRADING INDICATORS)
+// JS CORE (BLINDAGEM ORIGINAL)
 // ============================================================
 const FERIADOS_STOP = ["2026-01-01", "2026-02-16", "2026-02-17", "2026-04-03", "2026-04-21", "2026-05-01", "2026-06-24", "2026-07-02", "2026-09-07", "2026-10-12", "2026-11-02", "2026-11-15", "2026-12-25"];
-let db = JSON.parse(localStorage.getItem('blindagem_quantum_final_v29')) || { tesouroTotal: 0, logsMes: [], historicoLogs: [] };
+let db = JSON.parse(localStorage.getItem('blindagem_quantum_final_v30')) || { tesouroTotal: 0, logsMes: [], historicoLogs: [] };
 let finChart;
 let globalCaixaReais = 0; 
 let globalSatsTotal = 0; 
@@ -330,7 +301,7 @@ let lastKnownPrice = parseFloat(localStorage.getItem('btc_last_price')) || 60000
 let livePrice = lastKnownPrice;
 
 function saveFin() { 
-    localStorage.setItem('blindagem_quantum_final_v29', JSON.stringify(db)); 
+    localStorage.setItem('blindagem_quantum_final_v30', JSON.stringify(db)); 
     renderFinFull(); 
     updateLiveCalculations(); 
 }
@@ -341,12 +312,12 @@ function fmtData(isoDate) {
     return `${p[2]}/${p[1]}`;
 }
 
-// === LÓGICA DE BLINDAGEM ORIGINAL DO INDEX.HTML ===
+// === LÓGICA DE BLINDAGEM ORIGINAL ===
 function lancar() {
     const b = parseFloat(document.getElementById('valorBruto').value);
     if (!b) return;
 
-    // REGRA DE DESCONTO ORIGINAL:
+    // REGRA DE DESCONTO ORIGINAL (INDEX.HTML):
     let taxa = 0.06;
     if (b > 3000) taxa = 0.20;
     else if (b > 1000) taxa = 0.13;
@@ -417,7 +388,7 @@ function apagarItem(id) {
 
 function exportarJSON() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
-    const a = document.createElement('a'); a.href = dataStr; a.download = "backup_terminal_v29.json"; a.click();
+    const a = document.createElement('a'); a.href = dataStr; a.download = "backup_terminal_v30.json"; a.click();
 }
 
 function importarJSON(e) {
@@ -438,22 +409,13 @@ function renderFinFull() {
     let caixa = db.tesouroTotal;
     let satsTotal = 0;
     
-    let totalEntrouCaixa = 0; 
     db.logsMes.forEach(l => { 
         caixa += l.valor; 
         if(l.sats) satsTotal += l.sats; 
-        if(l.tipo === 'rec') totalEntrouCaixa += l.valor; 
     });
     
     globalCaixaReais = caixa;
     globalSatsTotal = satsTotal;
-
-    // REGRA 1/3 NO VALOR BLINDADO
-    let metaBtc = totalEntrouCaixa / 3;
-    let giro = totalEntrouCaixa - metaBtc;
-    
-    document.getElementById('metaBtc').innerText = metaBtc.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
-    document.getElementById('giroLivre').innerText = giro.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
 
     document.getElementById('saldoCaixa').innerText = caixa.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
     updateFinTextOnly();
@@ -709,7 +671,6 @@ function updateLiveCalculations() {
    document.getElementById('sigmaVal').innerText = (z>0?"+":"")+z.toFixed(2)+"σ";
    document.getElementById('heatPtr').style.left = `${Math.max(0, Math.min(100, ((z+3.5)/7)*100))}%`;
    
-   // ATUALIZAR RECBOX
    const box = document.getElementById('recBox'); 
    const act = document.getElementById('recAct'); 
    const det = document.getElementById('recDet');
@@ -731,7 +692,6 @@ function updateLiveCalculations() {
        det.innerText = "Carregando...";
    }
 
-   // ATUALIZAR ZONA PROB
    let lvl = null;
    const keys = Object.keys(LEVELS).sort((a,b)=>Math.abs(LEVELS[b].s)-Math.abs(LEVELS[a].s));
    for(let k of keys) { if(Math.abs(z - LEVELS[k].s) < 0.25) { lvl = LEVELS[k]; lvl.code = k; break; } }
@@ -744,7 +704,6 @@ function updateLiveCalculations() {
        zoneSpan.style.color = "#999";
    }
 
-   // ATUALIZAR GAUGES
    const volPct = (lastATR / livePrice) * 1000;
    drawGauge('gVol', Math.min(100, volPct*2), '#00ff9d');
    document.getElementById('tVol').innerText = volPct.toFixed(1);
@@ -758,7 +717,6 @@ function updateLiveCalculations() {
    drawGauge('gAcc', Math.max(0, Math.min(100, accGauge)), '#f7931a');
    document.getElementById('tAcc').innerText = mom.toFixed(2);
    
-   // LISTA ALERTAS
    const l = document.getElementById('sigList'); l.innerHTML = '';
    [...signals].reverse().slice(0,100).forEach(s => {
        const style = LEVELS[s.t];
