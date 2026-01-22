@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TERMINAL V26 [MOBILE]</title>
+<title>TERMINAL MASTER [V29 COMPLETA]</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0"></script>
@@ -13,7 +13,7 @@
   :root { 
     --bg: #030711; --panel: #070d19; --card: #0b111f; --text: #c9d7f2; 
     --muted: #637599; --accent: #f7931a; --border: #1a243f; 
-    --buy: #00ff9d; --accumulate: #d400ff; 
+    --buy: #00ff9d; --accumulate: #d400ff; --sell: #ff2a55;
     --gold: #ffd700; --quantum: #00d4ff; --warning: #ffaa00;
     --font: 'Inter', system-ui, sans-serif; --mono: 'Consolas', monospace; 
   }
@@ -22,10 +22,10 @@
   body { 
     margin: 0; background: var(--bg); color: var(--text); 
     font-family: var(--font); font-size: 12px; 
-    height: 100vh; overflow: hidden; /* Desktop default */
+    height: 100vh; overflow: hidden; 
   }
   
-  /* LAYOUT BASE (DESKTOP) */
+  /* === LAYOUT DESKTOP === */
   .cockpit { 
     display: grid; 
     grid-template-columns: 1fr 280px 320px; 
@@ -47,7 +47,7 @@
   label { color: var(--muted); font-size: 8px; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
   select, input { background: #040812; border: 1px solid #1e2d4a; color: #fff; padding: 2px 6px; border-radius: 4px; font-family: var(--mono); font-size: 11px; }
 
-  /* COLUNAS DESKTOP */
+  /* ÁREAS */
   .chart-area { position: relative; background: #050a13; border-right: 1px solid var(--border); overflow: hidden; }
   .indicators-area { background: var(--panel); border-right: 1px solid var(--border); padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
   .finance-area { background: #080c14; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
@@ -56,18 +56,21 @@
   .panel-box { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 10px; }
   .p-head { font-size: 10px; font-weight: 800; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; border-bottom: 1px solid #ffffff10; padding-bottom: 4px; }
   
-  .rec-box { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 4px; padding: 10px; text-align: center; }
-  .rec-action { font-size: 16px; font-weight: 900; margin: 4px 0; font-family: var(--mono); white-space: nowrap; }
+  /* INTELIGENCIA E DINAMICA */
+  .rec-box { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 4px; padding: 10px; text-align: center; transition: 0.2s; }
+  .rec-title { font-size: 9px; color: var(--muted); font-weight: bold; letter-spacing: 1px; text-transform: uppercase; }
+  .rec-action { font-size: 16px; font-weight: 900; margin: 4px 0; font-family: var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .rec-detail { font-size: 11px; color: #fff; font-weight: bold; margin-bottom: 6px; }
   .rec-prob { border-top: 1px solid #333; margin-top: 6px; padding-top: 6px; font-size: 10px; color: var(--quantum); font-weight: bold; display: flex; justify-content: space-between; }
 
   .heat-bar { height: 10px; background: linear-gradient(90deg, #0011ff, #00a8ff, #00c7a7, #27e46d, #ff0062); border-radius: 5px; position: relative; margin: 10px 0; }
-  .heat-ptr { position: absolute; top: -2px; width: 4px; height: 14px; background: #fff; box-shadow: 0 0 8px #fff; border-radius: 2px; }
+  .heat-ptr { position: absolute; top: -2px; width: 4px; height: 14px; background: #fff; box-shadow: 0 0 8px #fff; border-radius: 2px; transition: left 0.1s; }
   
   .gauge-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
   .gauge-item { background: rgba(0,0,0,0.2); border-radius: 4px; padding: 6px; text-align: center; }
   .sig-list { max-height: 250px; overflow-y: auto; border: 1px solid var(--border); background: rgba(0,0,0,0.2); }
   .sig-item { display: grid; grid-template-columns: 50px 30px 1fr; padding: 4px 6px; border-bottom: 1px solid #ffffff05; cursor: pointer; font-size: 10px; }
+  .sig-item:hover { background: #ffffff05; }
 
   .fin-label { color: #666; font-size: 9px; text-transform: uppercase; display: block; margin-bottom: 2px; }
   .val-gold { color: var(--gold); font-size: 20px; font-weight: bold; line-height: 1.1; font-family: var(--mono); }
@@ -78,6 +81,7 @@
   .input-group { display: flex; gap: 5px; margin-top: 5px; align-items: center; }
   .fin-input { background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 6px; border-radius: 4px; font-size: 11px; width: 100%; height: 28px; }
   input[type="date"] { font-family: var(--mono); font-size: 11px; letter-spacing: -0.5px; padding-right: 0; }
+  
   .btn { border: none; padding: 0 8px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; height: 28px; display:flex; align-items:center; justify-content:center; width:100%; }
   .btn-accent { background: var(--buy); color: #000; }
   .btn-btc { background: rgba(247, 147, 26, 0.2); color: var(--accent); border: 1px solid var(--accent); }
@@ -93,11 +97,29 @@
   .proj-val { font-size: 16px; font-weight: bold; color: var(--quantum); text-align: right; }
   .proj-sub { font-size: 9px; color: #888; text-align: right; margin-top: 2px; }
 
+  /* === REGRA 1/3 (VISUAL) === */
+  .rule-box {
+      border: 1px dashed #666;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 8px;
+      border-radius: 4px;
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      font-size: 10px;
+  }
+  .rule-item { text-align: center; }
+  .rule-val { font-size: 13px; font-weight: bold; font-family: var(--mono); margin-top: 2px; }
+  .rule-label { color: #888; font-size: 9px; text-transform: uppercase; }
+
   /* === ESTILO DESTAQUE TURNO === */
   .turno-highlight { border: 2px solid var(--buy); background: rgba(0, 255, 157, 0.08); padding: 12px; }
   .turno-highlight .input-group { display: grid; grid-template-columns: 1fr 90px 45px; gap: 6px; }
+  
   #valorBruto { height: 42px; font-size: 16px; font-weight: bold; border-color: #005f3a; width: 100%; }
-  #dataTurno { height: 42px; font-size: 10px !important; font-weight: normal; border-color: #005f3a; width: 100%; text-align: center; }
+  #dataTurno { height: 42px; font-size: 11px; font-weight: normal; border-color: #005f3a; width: 100%; text-align: center; }
+  
   .turno-highlight button { height: 42px; font-size: 14px; width: 100%; background: var(--buy); color: #000; box-shadow: 0 0 10px rgba(0, 255, 157, 0.3); border: none; border-radius: 4px; font-weight: 900; cursor: pointer; }
   .turno-label { color: var(--buy); font-size: 12px; font-weight: 900; text-transform: uppercase; display: block; margin-bottom: 6px; letter-spacing: 0.5px; }
 
@@ -107,61 +129,34 @@
   .sats-highlight input { height: 28px; font-size: 11px; border-color: #5a006e; width: 100%; }
   .sats-label { color: var(--accumulate); font-size: 10px; font-weight: 900; text-transform: uppercase; display: block; margin-bottom: 4px; }
 
-  /* ========================================= */
-  /* 🚨 MOBILE MODE (XIAOMI 8 PRO FIX) 🚨     */
-  /* ========================================= */
+  /* === MOBILE MODE === */
   @media (max-width: 900px) {
-      body {
-          overflow-y: auto; /* Libera rolagem da página inteira */
-          height: auto;
-      }
-      .cockpit {
-          display: flex;
-          flex-direction: column; /* Empilha: Header -> Gráfico -> Indicadores -> Finanças */
-          height: auto;
-          overflow: visible;
-      }
-      header {
-          position: sticky; top: 0; z-index: 100;
-          flex-wrap: wrap; /* Se faltar espaço, quebra linha */
-          padding: 8px 10px;
-      }
+      body { overflow-y: auto; height: auto; }
+      .cockpit { display: flex; flex-direction: column; height: auto; overflow: visible; }
+      header { position: sticky; top: 0; z-index: 100; flex-wrap: wrap; padding: 8px 10px; }
       
-      /* Gráfico com altura fixa no mobile para não esmagar */
-      .chart-area {
-          height: 400px; 
-          flex-shrink: 0;
-          border-bottom: 1px solid var(--border);
-      }
+      .chart-area { height: 380px; flex-shrink: 0; border-bottom: 1px solid var(--border); }
       
-      .indicators-area {
+      /* REATIVANDO INDICADORES NO MOBILE */
+      .indicators-area { 
+          display: flex; /* Agora visível! */
           height: auto;
           overflow: visible;
           border-bottom: 1px solid var(--border);
+          flex-direction: column;
       }
       
-      .finance-area {
-          height: auto;
-          overflow: visible;
-          padding-bottom: 50px; /* Espaço pro dedo no fim da tela */
-      }
+      .finance-area { height: auto; overflow: visible; padding-bottom: 60px; }
 
-      /* TRANSFORMANDO O INPUT DE TURNO PARA MOBILE */
+      /* Ajuste dos inputs para mobile */
       .turno-highlight .input-group {
-          /* No celular, o Valor fica em cima, Data e Botão embaixo divididos */
           grid-template-columns: 1fr 1fr; 
-          grid-template-areas: 
-              "valor valor"
-              "data botao";
+          grid-template-areas: "valor valor" "data botao";
       }
-      #valorBruto { grid-area: valor; }
-      #dataTurno { grid-area: data; }
-      .turno-highlight button { grid-area: botao; }
-      
-      /* Ajuste fino para Sats Externo no mobile */
-      .sats-highlight .input-group {
-         grid-template-columns: 1fr 80px 40px; /* Ajuste para tela estreita */
-      }
+      #valorBruto { grid-area: valor; font-size: 20px; height: 50px; } 
+      #dataTurno { grid-area: data; height: 40px; font-size: 12px; }
+      .turno-highlight button { grid-area: botao; height: 40px; }
+      .sats-highlight .input-group { grid-template-columns: 1fr 90px 40px; }
   }
 
   ::-webkit-scrollbar { width: 4px; }
@@ -172,21 +167,13 @@
 
 <div class="cockpit">
   <header>
-    <div class="logo">TERMINAL [V26 MOBILE]</div>
+    <div class="logo">TERMINAL [V29 COMPLETA]</div>
     <div class="live-dot"></div>
     <div class="ctrl">
       <label>TF</label>
       <select id="tf" onchange="startEngine()">
         <option value="4h" selected>4H</option>
         <option value="1d">1D</option>
-        <option value="1w">1S</option>
-      </select>
-    </div>
-    <div class="ctrl">
-      <label>CANDLES</label>
-      <select id="limit" onchange="startEngine()">
-        <option value="1000" selected>1k</option>
-        <option value="5000">5k</option>
       </select>
     </div>
     <div id="price-box" style="margin-left:auto; font-family:var(--mono); font-weight:bold; color:#fff; font-size:16px;">--</div>
@@ -196,15 +183,16 @@
     <canvas id="mainChart"></canvas>
   </div>
 
-  <aside class="indicators-area">
+  <aside class="indicators-area" id="painelIndicadores">
+    
     <div class="panel-box" style="border-color: #00b4d8;">
       <div class="p-head">🧠 INTELIGÊNCIA</div>
       <div class="rec-box" id="recBox">
-        <div class="rec-title">ÚLTIMO SINAL (CONFIRMADO)</div>
+        <div class="rec-title">ÚLTIMO SINAL</div>
         <div class="rec-action" id="recAct">AGUARDANDO...</div>
         <div class="rec-detail" id="recDet">...</div>
         <div class="rec-prob">
-           <span>ZONA:</span>
+           <span>ZONA ATUAL:</span>
            <span id="zoneProb" style="color:#fff">--</span>
         </div>
       </div>
@@ -215,23 +203,23 @@
       <div style="text-align:center; font-size:18px; font-weight:900; color:#fff;" id="sigmaVal">0.00σ</div>
       <div class="heat-bar"><div class="heat-ptr" id="heatPtr" style="left:50%"></div></div>
     </div>
-    
+
     <div class="panel-box">
-      <div class="p-head">DINÂMICA</div>
+      <div class="p-head">DINÂMICA DE MERCADO</div>
       <div class="gauge-row">
         <div class="gauge-item">
-           <div style="font-size:8px; color:#aaa">VOLATILIDADE</div>
-           <canvas id="gVol" width="60" height="30"></canvas>
-           <div style="font-size:12px; font-weight:bold; color:var(--buy);" id="tVol">0.0</div>
+          <div style="font-size:8px; color:#aaa">VOLATILIDADE</div>
+          <canvas id="gVol" width="60" height="30"></canvas>
+          <div style="font-size:12px; font-weight:bold; color:var(--buy);" id="tVol">0.0</div>
         </div>
         <div class="gauge-item">
-           <div style="font-size:8px; color:#aaa">ACELERAÇÃO</div>
-           <canvas id="gAcc" width="60" height="30"></canvas>
-           <div style="font-size:12px; font-weight:bold; color:var(--accent);" id="tAcc">0.0</div>
+          <div style="font-size:8px; color:#aaa">ACELERAÇÃO</div>
+          <canvas id="gAcc" width="60" height="30"></canvas>
+          <div style="font-size:12px; font-weight:bold; color:var(--accent);" id="tAcc">0.0</div>
         </div>
       </div>
     </div>
-    
+
     <div class="panel-box">
        <div class="p-head">ALERTAS</div>
        <div class="sig-list" id="sigList"></div>
@@ -244,7 +232,7 @@
       <div class="val-gold" id="totalGeral">R$ 0,00</div>
       <div class="sub-val">
         <div>
-          <span class="fin-label">CAIXA</span>
+          <span class="fin-label">CAIXA BLINDADO</span>
           <span class="val-fiat" id="saldoCaixa" style="color:#00b4d8; font-size:14px;">R$ 0,00</span>
         </div>
         <div>
@@ -252,6 +240,18 @@
           <span class="val-btc" id="saldoSatsDisplay">0 sats</span>
         </div>
       </div>
+
+      <div class="rule-box">
+          <div class="rule-item" style="border-right:1px solid #444">
+              <span class="rule-label">META BTC (1/3)</span>
+              <div class="rule-val" id="metaBtc" style="color:var(--accumulate)">R$ 0,00</div>
+          </div>
+          <div class="rule-item">
+              <span class="rule-label">GIRO (2/3)</span>
+              <div class="rule-val" id="giroLivre" style="color:var(--buy)">R$ 0,00</div>
+          </div>
+      </div>
+      
       <div style="height:80px; margin-top:10px;">
         <canvas id="finChart"></canvas>
       </div>
@@ -264,7 +264,7 @@
     </div>
 
     <div class="panel-box turno-highlight">
-      <span class="turno-label">🦁 LANÇAR TURNO</span>
+      <span class="turno-label">🦁 LANÇAR (DIGITE O BRUTO)</span>
       <div class="input-group">
         <input type="number" id="valorBruto" placeholder="R$ Bruto" inputmode="decimal">
         <input type="date" id="dataTurno">
@@ -317,10 +317,10 @@
 
 <script>
 // ============================================================
-// JS CORE (Mesma Lógica V25, Apenas UI Mobile)
+// JS CORE (BLINDAGEM ORIGINAL + TRADING INDICATORS)
 // ============================================================
 const FERIADOS_STOP = ["2026-01-01", "2026-02-16", "2026-02-17", "2026-04-03", "2026-04-21", "2026-05-01", "2026-06-24", "2026-07-02", "2026-09-07", "2026-10-12", "2026-11-02", "2026-11-15", "2026-12-25"];
-let db = JSON.parse(localStorage.getItem('blindagem_quantum_final_v26')) || { tesouroTotal: 0, logsMes: [], historicoLogs: [] };
+let db = JSON.parse(localStorage.getItem('blindagem_quantum_final_v29')) || { tesouroTotal: 0, logsMes: [], historicoLogs: [] };
 let finChart;
 let globalCaixaReais = 0; 
 let globalSatsTotal = 0; 
@@ -330,7 +330,7 @@ let lastKnownPrice = parseFloat(localStorage.getItem('btc_last_price')) || 60000
 let livePrice = lastKnownPrice;
 
 function saveFin() { 
-    localStorage.setItem('blindagem_quantum_final_v26', JSON.stringify(db)); 
+    localStorage.setItem('blindagem_quantum_final_v29', JSON.stringify(db)); 
     renderFinFull(); 
     updateLiveCalculations(); 
 }
@@ -341,10 +341,26 @@ function fmtData(isoDate) {
     return `${p[2]}/${p[1]}`;
 }
 
+// === LÓGICA DE BLINDAGEM ORIGINAL DO INDEX.HTML ===
 function lancar() {
-    const v = parseFloat(document.getElementById('valorBruto').value);
-    if (!v) return;
-    db.logsMes.push({ id: Date.now(), tipo: 'rec', valor: v, label: `ENTRADA`, data: document.getElementById('dataTurno').value });
+    const b = parseFloat(document.getElementById('valorBruto').value);
+    if (!b) return;
+
+    // REGRA DE DESCONTO ORIGINAL:
+    let taxa = 0.06;
+    if (b > 3000) taxa = 0.20;
+    else if (b > 1000) taxa = 0.13;
+    
+    const valorLiquido = b * taxa;
+
+    db.logsMes.push({ 
+        id: Date.now(), 
+        tipo: 'rec', 
+        valor: valorLiquido, 
+        label: `USG: R$ ${b}`, // Etiqueta mostra o Bruto
+        data: document.getElementById('dataTurno').value 
+    });
+
     document.getElementById('valorBruto').value = ''; 
     saveFin();
 }
@@ -401,7 +417,7 @@ function apagarItem(id) {
 
 function exportarJSON() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
-    const a = document.createElement('a'); a.href = dataStr; a.download = "backup_terminal_v26.json"; a.click();
+    const a = document.createElement('a'); a.href = dataStr; a.download = "backup_terminal_v29.json"; a.click();
 }
 
 function importarJSON(e) {
@@ -421,9 +437,23 @@ function updateFinTextOnly() {
 function renderFinFull() {
     let caixa = db.tesouroTotal;
     let satsTotal = 0;
-    db.logsMes.forEach(l => { caixa += l.valor; if(l.sats) satsTotal += l.sats; });
+    
+    let totalEntrouCaixa = 0; 
+    db.logsMes.forEach(l => { 
+        caixa += l.valor; 
+        if(l.sats) satsTotal += l.sats; 
+        if(l.tipo === 'rec') totalEntrouCaixa += l.valor; 
+    });
+    
     globalCaixaReais = caixa;
     globalSatsTotal = satsTotal;
+
+    // REGRA 1/3 NO VALOR BLINDADO
+    let metaBtc = totalEntrouCaixa / 3;
+    let giro = totalEntrouCaixa - metaBtc;
+    
+    document.getElementById('metaBtc').innerText = metaBtc.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+    document.getElementById('giroLivre').innerText = giro.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
 
     document.getElementById('saldoCaixa').innerText = caixa.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
     updateFinTextOnly();
@@ -516,7 +546,7 @@ function renderFinChart(media, caixaAtual, satsTotal) {
 }
 
 // ============================================================
-// TRADING
+// TRADING ENGINE
 // ============================================================
 const LEVELS = {
   'C30': { s: -3.0, p: 0.50, color: '#00ccff', size: 14, desc: 'FUNDO MÁXIMO' },
@@ -592,7 +622,7 @@ const customPlugin = {
 
 async function startEngine() {
   const tf = document.getElementById('tf').value;
-  const limit = parseInt(document.getElementById('limit').value);
+  const limit = 1000; 
   
   let all = []; let endTime = null;
   try {
@@ -670,7 +700,6 @@ function processIndicators() {
   signals = cleanSigs;
 
   renderChart(basis, dev);
-  renderList();
   updateLiveCalculations();
 }
 
@@ -680,6 +709,7 @@ function updateLiveCalculations() {
    document.getElementById('sigmaVal').innerText = (z>0?"+":"")+z.toFixed(2)+"σ";
    document.getElementById('heatPtr').style.left = `${Math.max(0, Math.min(100, ((z+3.5)/7)*100))}%`;
    
+   // ATUALIZAR RECBOX
    const box = document.getElementById('recBox'); 
    const act = document.getElementById('recAct'); 
    const det = document.getElementById('recDet');
@@ -693,20 +723,18 @@ function updateLiveCalculations() {
        
        box.style.borderColor = color;
        box.style.background = isBuy ? "rgba(0,100,255,0.15)" : "rgba(0,255,0,0.15)";
-       
        act.innerText = isBuy ? `COMPRA ${lastSig.t}` : `ACUMULAR ${lastSig.t}`;
        act.style.color = color;
-       
        det.innerHTML = `ALVO: R$ ${val.toFixed(2)}<br><span style='font-size:9px;color:#aaa'>Sinal: ${new Date(lastSig.x).toLocaleDateString()}</span>`;
    } else {
        act.innerText = "AGUARDANDO DADOS";
        det.innerText = "Carregando...";
    }
 
+   // ATUALIZAR ZONA PROB
    let lvl = null;
    const keys = Object.keys(LEVELS).sort((a,b)=>Math.abs(LEVELS[b].s)-Math.abs(LEVELS[a].s));
    for(let k of keys) { if(Math.abs(z - LEVELS[k].s) < 0.25) { lvl = LEVELS[k]; lvl.code = k; break; } }
-   
    const zoneSpan = document.getElementById('zoneProb');
    if(lvl) {
        zoneSpan.innerText = `${lvl.code} (≈ ${lvl.desc})`;
@@ -716,6 +744,7 @@ function updateLiveCalculations() {
        zoneSpan.style.color = "#999";
    }
 
+   // ATUALIZAR GAUGES
    const volPct = (lastATR / livePrice) * 1000;
    drawGauge('gVol', Math.min(100, volPct*2), '#00ff9d');
    document.getElementById('tVol').innerText = volPct.toFixed(1);
@@ -728,6 +757,19 @@ function updateLiveCalculations() {
    const accGauge = 50 + mom; 
    drawGauge('gAcc', Math.max(0, Math.min(100, accGauge)), '#f7931a');
    document.getElementById('tAcc').innerText = mom.toFixed(2);
+   
+   // LISTA ALERTAS
+   const l = document.getElementById('sigList'); l.innerHTML = '';
+   [...signals].reverse().slice(0,100).forEach(s => {
+       const style = LEVELS[s.t];
+       const col = style ? style.color : '#fff';
+       const arrow = s.t.startsWith('C') ? '▲' : '▼';
+       const d = document.createElement('div');
+       d.className = 'sig-item';
+       d.innerHTML = `<div style="color:#666">${new Date(s.x).toLocaleDateString()}</div><div style="color:${col}; font-weight:bold">${arrow} ${s.t}</div><div style="text-align:right; font-family:var(--mono)">R$ ${s.y.toFixed(0)}</div>`;
+       d.onclick = () => chart.zoomScale('x', {min: s.x-5e7, max: s.x+5e7}, 'default');
+       l.appendChild(d);
+   });
 }
 
 function drawGauge(id, val, col) {
@@ -793,7 +835,6 @@ function renderChart(basis, dev) {
                           if(c.datasetIndex !== 8) return '';
                           const lvl = LEVELS[p.t];
                           const brl = globalCaixaReais; 
-                          
                           if(p.t.startsWith('C')) {
                               const val = brl * lvl.p;
                               return `🔵 COMPRAR: R$ ${val.toFixed(2)}`;
@@ -817,20 +858,6 @@ function renderChart(basis, dev) {
       },
       plugins: [customPlugin]
   });
-}
-
-function renderList() {
-    const l = document.getElementById('sigList'); l.innerHTML = '';
-    [...signals].reverse().slice(0,100).forEach(s => {
-        const d = document.createElement('div');
-        d.className = 'sig-item';
-        const style = LEVELS[s.t];
-        const col = style ? style.color : '#fff';
-        const arrow = s.t.startsWith('C') ? '▲' : '▼';
-        d.innerHTML = `<div style="color:#666">${new Date(s.x).toLocaleDateString()}</div><div style="color:${col}; font-weight:bold">${arrow} ${s.t}</div><div style="text-align:right; font-family:var(--mono)">R$ ${s.y.toFixed(0)}</div>`;
-        d.onclick = () => chart.zoomScale('x', {min: s.x-5e7, max: s.x+5e7}, 'default');
-        l.appendChild(d);
-    });
 }
 
 async function updateTicker() {
