@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TERMINAL MASTER [V32 FINAL]</title>
+<title>TERMINAL MASTER [V33 FINAL]</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0"></script>
@@ -107,6 +107,11 @@
   .turno-highlight button { height: 42px; font-size: 14px; width: 100%; background: var(--buy); color: #000; box-shadow: 0 0 10px rgba(0, 255, 157, 0.3); border: none; border-radius: 4px; font-weight: 900; cursor: pointer; }
   .turno-label { color: var(--buy); font-size: 12px; font-weight: 900; text-transform: uppercase; display: block; margin-bottom: 6px; letter-spacing: 0.5px; }
 
+  /* === NOVO: ESTILO APORTE EXTRA R$ === */
+  .aporte-highlight { border: 1px dashed var(--quantum); background: rgba(0, 212, 255, 0.05); padding: 8px; margin-bottom: 8px; }
+  .aporte-highlight .input-group { display: grid; grid-template-columns: 1fr 90px 35px; gap: 5px; }
+  .aporte-label { color: var(--quantum); font-size: 10px; font-weight: 900; text-transform: uppercase; display: block; margin-bottom: 4px; }
+
   /* === ESTILO SATS EXTERNO === */
   .sats-highlight { border: 1px dashed var(--accumulate); background: rgba(212, 0, 255, 0.05); padding: 8px; margin-bottom: 8px; }
   .sats-highlight .input-group { display: grid; grid-template-columns: 1fr 90px 35px; gap: 5px; }
@@ -138,7 +143,9 @@
       #valorBruto { grid-area: valor; font-size: 20px; height: 50px; } 
       #dataTurno { grid-area: data; height: 40px; font-size: 12px; }
       .turno-highlight button { grid-area: botao; height: 40px; }
+      
       .sats-highlight .input-group { grid-template-columns: 1fr 90px 40px; }
+      .aporte-highlight .input-group { grid-template-columns: 1fr 90px 40px; }
   }
 
   ::-webkit-scrollbar { width: 4px; }
@@ -149,7 +156,7 @@
 
 <div class="cockpit">
   <header>
-    <div class="logo">TERMINAL [V32 FINAL]</div>
+    <div class="logo">TERMINAL [V33 FINAL]</div>
     <div class="live-dot"></div>
     <div class="ctrl">
       <label>TF</label>
@@ -183,8 +190,8 @@
         <div class="rec-action" id="recAct">AGUARDANDO...</div>
         <div class="rec-detail" id="recDet">...</div>
         <div class="rec-prob">
-           <span>ZONA ATUAL:</span>
-           <span id="zoneProb" style="color:#fff">--</span>
+            <span>ZONA ATUAL:</span>
+            <span id="zoneProb" style="color:#fff">--</span>
         </div>
       </div>
     </div>
@@ -249,6 +256,15 @@
         <input type="number" id="valorBruto" placeholder="R$ Bruto" inputmode="decimal">
         <input type="date" id="dataTurno">
         <button onclick="lancar()">OK</button>
+      </div>
+    </div>
+
+    <div class="panel-box aporte-highlight">
+      <span class="aporte-label">💎 INJETAR APORTE (R$ EXTRA)</span>
+      <div class="input-group">
+        <input type="number" id="valorAporteExtra" placeholder="R$ Puro" inputmode="decimal" class="fin-input" style="border:1px solid var(--quantum);">
+        <input type="date" id="dataAporteExtra">
+        <button class="btn" style="background:var(--quantum); color:#000; font-weight:bold; width:100%;" onclick="lancarAporteExtra()">OK</button>
       </div>
     </div>
 
@@ -342,6 +358,21 @@ function lancar() {
     });
 
     document.getElementById('valorBruto').value = ''; 
+    saveFin();
+}
+
+// === NOVO: LANÇAR APORTE EXTRA R$ ===
+function lancarAporteExtra() {
+    const v = parseFloat(document.getElementById('valorAporteExtra').value);
+    if (!v || v <= 0) return;
+    db.logsMes.push({ 
+        id: Date.now(), 
+        tipo: 'aporte_extra', 
+        valor: v, 
+        label: `APORTE R$`, 
+        data: document.getElementById('dataAporteExtra').value 
+    });
+    document.getElementById('valorAporteExtra').value = '';
     saveFin();
 }
 
@@ -458,6 +489,7 @@ function renderFinFull() {
         let cor = l.valor > 0 ? 'var(--buy)' : 'var(--sell)';
         if(l.tipo === 'btc_buy') cor = 'var(--accent)';
         if(l.tipo === 'sats_extra') cor = 'var(--accumulate)';
+        if(l.tipo === 'aporte_extra') cor = 'var(--quantum)'; // Cor Ciano para aporte
         let valDisplay = l.valor !== 0 ? l.valor.toFixed(2) : `+${l.sats}`;
         return `<div class="item">
            <span>${fmtData(l.data)} - ${l.label}</span>
@@ -744,13 +776,13 @@ function updateLiveCalculations() {
 }
 
 function drawGauge(id, val, col) {
-    const ctx=document.getElementById(id).getContext('2d');
-    ctx.clearRect(0,0,60,30);
-    ctx.beginPath(); ctx.arc(30,30,25,Math.PI,0);
-    ctx.lineWidth=4; ctx.strokeStyle="#333"; ctx.stroke();
-    const ang = Math.PI + (val/100)*Math.PI;
-    ctx.beginPath(); ctx.arc(30,30,25,Math.PI,ang);
-    ctx.lineWidth=4; ctx.strokeStyle=col; ctx.stroke();
+   const ctx=document.getElementById(id).getContext('2d');
+   ctx.clearRect(0,0,60,30);
+   ctx.beginPath(); ctx.arc(30,30,25,Math.PI,0);
+   ctx.lineWidth=4; ctx.strokeStyle="#333"; ctx.stroke();
+   const ang = Math.PI + (val/100)*Math.PI;
+   ctx.beginPath(); ctx.arc(30,30,25,Math.PI,ang);
+   ctx.lineWidth=4; ctx.strokeStyle=col; ctx.stroke();
 }
 
 function renderChart(basis, dev) {
@@ -856,6 +888,7 @@ window.onload = () => {
     document.getElementById('dataTurno').value = new Date().toISOString().split('T')[0];
     document.getElementById('dataGasto').value = new Date().toISOString().split('T')[0];
     document.getElementById('dataSats').value = new Date().toISOString().split('T')[0];
+    document.getElementById('dataAporteExtra').value = new Date().toISOString().split('T')[0]; // Data para o novo campo
     renderFinFull(); 
     startEngine();
     setInterval(updateTicker, 2000); 
